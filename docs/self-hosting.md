@@ -67,19 +67,19 @@ Stripe env vars (`STRIPE_*`) are optional: leave them empty.
 
 Set on the Convex deployment (`bunx convex env set [--prod] NAME value`):
 
-| Var                                   | State                                                      |
-| ------------------------------------- | ---------------------------------------------------------- |
-| `CLERK_JWT_ISSUER_DOMAIN`             | set (dev instance issuer)                                  |
-| `CLERK_SECRET_KEY`                    | set (dev instance)                                         |
-| `RAILWAY_ENDPOINT`                    | set (R2 S3 endpoint)                                       |
-| `RAILWAY_BUCKET_NAME`                 | set (`lawn-videos`)                                        |
-| `RAILWAY_REGION`                      | set (`auto`)                                               |
-| `RAILWAY_ACCESS_KEY_ID`               | **missing** — R2 API token                                 |
-| `RAILWAY_SECRET_ACCESS_KEY`           | **missing** — R2 API token                                 |
-| `MUX_TOKEN_ID` / `MUX_TOKEN_SECRET`   | **missing** — Mux access token                             |
-| `MUX_SIGNING_KEY` / `MUX_PRIVATE_KEY` | **missing** — can be created via API once the token exists |
-| `MUX_WEBHOOK_SECRET`                  | **missing** — from the Mux webhook                         |
-| `STRIPE_*`                            | optional, unset                                            |
+| Var                                   | State                                               |
+| ------------------------------------- | --------------------------------------------------- |
+| `CLERK_JWT_ISSUER_DOMAIN`             | set (dev instance issuer)                           |
+| `CLERK_SECRET_KEY`                    | set (dev instance)                                  |
+| `RAILWAY_ENDPOINT`                    | set (R2 S3 endpoint)                                |
+| `RAILWAY_BUCKET_NAME`                 | set (`lawn-videos`)                                 |
+| `RAILWAY_REGION`                      | set (`auto`)                                        |
+| `RAILWAY_ACCESS_KEY_ID`               | set (R2 account token `lawn-convex`, bucket-scoped) |
+| `RAILWAY_SECRET_ACCESS_KEY`           | set                                                 |
+| `MUX_TOKEN_ID` / `MUX_TOKEN_SECRET`   | set (Production env access token)                   |
+| `MUX_SIGNING_KEY` / `MUX_PRIVATE_KEY` | set (signing key, PEM stored with `\n` escapes)     |
+| `MUX_WEBHOOK_SECRET`                  | set                                                 |
+| `STRIPE_*`                            | optional, unset                                     |
 
 `RAILWAY_PUBLIC_URL` is not needed: uploads, Mux ingest, and downloads all use
 presigned URLs, so the bucket stays private.
@@ -128,7 +128,7 @@ clerk api /jwt_templates --instance prod -d '{"name":"convex","claims":{"aud":"c
 # VITE_CLERK_PUBLISHABLE_KEY on Vercel, then redeploy.
 ```
 
-## DNS (Cloudflare, manual)
+## DNS (Cloudflare)
 
 Wrangler's OAuth token cannot write DNS records, so add this in the Cloudflare
 dashboard for `fkcodes.com`, **DNS only** (grey cloud):
@@ -137,7 +137,7 @@ dashboard for `fkcodes.com`, **DNS only** (grey cloud):
 A   lawn   76.76.21.21
 ```
 
-Vercel verifies it automatically.
+Done: record exists, DNS only, Vercel serves https://lawn.fkcodes.com.
 
 ## Day-to-day
 
