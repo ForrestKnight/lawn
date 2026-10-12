@@ -18,7 +18,12 @@ import {
 } from "./billingHelpers";
 
 const stripeClient = new StripeSubscriptions(components.stripe, {});
-const stripe = new Stripe(stripeClient.apiKey);
+// FORK (stub-billing): lazy so the module loads without STRIPE_SECRET_KEY.
+let cachedStripe: Stripe | null = null;
+function getStripe(): Stripe {
+  cachedStripe ??= new Stripe(stripeClient.apiKey);
+  return cachedStripe;
+}
 const TEAM_TRIAL_DAYS = 7;
 const PLAN_RANK = {
   basic: 0,
@@ -149,7 +154,7 @@ export const createSubscriptionCheckout = action({
       sessionParams.customer = stripeCustomerId;
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    const session = await getStripe().checkout.sessions.create(sessionParams);
     return {
       sessionId: session.id,
       url: session.url,
@@ -179,7 +184,7 @@ export const reconcileTeamSubscription = action({
       return { status: "no_customer" as const };
     }
 
-    const subscriptions = await stripe.subscriptions.list({
+    const subscriptions = await getStripe().subscriptions.list({
       customer: team.stripeCustomerId,
       status: "all",
       limit: 100,
@@ -299,7 +304,7 @@ export const updateTeamSubscriptionPlan = action({
     }
 
     const stripePriceId = getStripePriceIdForPlan(args.plan);
-    const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+    const subscription = await getStripe().subscriptions.retrieve(stripeSubscriptionId);
 
     if (!hasActiveTeamSubscriptionStatus(subscription.status)) {
       throw new Error("Only active subscriptions can be upgraded.");
@@ -324,7 +329,7 @@ export const updateTeamSubscriptionPlan = action({
       throw new Error("Use the billing portal to downgrade this subscription.");
     }
 
-    const updatedSubscription = await stripe.subscriptions.update(stripeSubscriptionId, {
+    const updatedSubscription = await getStripe().subscriptions.update(stripeSubscriptionId, {
       items: [
         {
           id: currentItem.id,

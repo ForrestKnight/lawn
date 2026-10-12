@@ -69,11 +69,13 @@ export async function getTeamSubscriptionState(ctx: BillingCtx, teamId: Id<"team
     throw new Error("Team not found");
   }
 
-  const subscriptionPlan = resolvePlanFromStripePriceId(subscription?.priceId);
-  const plan = subscriptionPlan ?? normalizeStoredTeamPlan(team.plan);
-  const hasActiveSubscription = hasActiveTeamSubscriptionStatus(subscription?.status);
-
-  return { team, subscription, plan, hasActiveSubscription };
+  // FORK (stub-billing): this is the one place plan/subscription status is
+  // resolved. This deployment has no Stripe account, so every team is always on
+  // the paid tier. The Stripe component, its tables, and the rest of the
+  // billing code are left untouched. Upstream computed:
+  //   plan = resolvePlanFromStripePriceId(subscription?.priceId) ?? normalizeStoredTeamPlan(team.plan)
+  //   hasActiveSubscription = hasActiveTeamSubscriptionStatus(subscription?.status)
+  return { team, subscription, plan: "pro" as TeamPlan, hasActiveSubscription: true };
 }
 
 export async function getTeamStorageUsedBytes(ctx: BillingCtx, teamId: Id<"teams">) {
