@@ -1,0 +1,81 @@
+# Keeps this fork current with pingdotgg/lawn.
+#
+# Upstream commits land in bursts every week or two (checked 2026-10-12), so a
+# weekly merge is enough. Run it on demand from the Actions tab if you want to
+# pull a fresh upstream push sooner.
+#
+# Strategy: merge upstream/main into master. Local customizations stay on
+# master as ordinary commits, so a merge keeps them without rewriting history.
+# If the merge conflicts, the job fails and opens an issue instead of pushing.
+name: Sync upstream
+
+on:
+  schedule:
+    - cron: "17 13 * * 1" # Mondays 13:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Merge upstream/main into master
+        id: merge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/pingdotgg/lawn.git
+          git fetch upstream main
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "result=up-to-date" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git merge --no-edit upstream/main; then
+            git push origin master
+            echo "result=merged" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # This fork deletes upstream's marketing pages. When upstream edits one of
+          # them the merge reports a modify/delete conflict; keep it deleted.
+          for f in $(git diff --name-only --diff-filter=U); do
+            if ! git ls-files --stage "$f" | grep -q '^[0-9]* [0-9a-f]* 2'; then
+              git rm -q --cached "$f" 2>/dev/null || true
+              rm -f "$f"
+            fi
+          done
+          if [ -z "$(git diff --name-only --diff-filter=U)" ]; then
+            git commit --no-edit -q
+            git push origin master
+            echo "result=merged" >> "$GITHUB_OUTPUT"
+          else
+            git diff --name-only --diff-filter=U > /tmp/conflicts.txt
+            git merge --abort
+            echo "result=conflict" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open an issue on conflict
+        if: steps.merge.outputs.result == 'conflict'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          body=$(printf 'Automatic merge of upstream/main into master failed.\n\nConflicting files:\n```\n%s\n```\n\nResolve locally:\n```\ngit fetch upstream main\ngit merge upstream/main\n# fix conflicts, then\ngit push origin master\n```\n' "$(cat /tmp/conflicts.txt)")
+          existing=$(gh issue list --label upstream-sync --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh label create upstream-sync --color d93f0b --description "Upstream merge needs manual resolution" 2>/dev/null || true
+            gh issue create --title "Upstream sync conflict ($(date -u +%F))" --label upstream-sync --body "$body"
+          fi
+          exit 1
