@@ -17,7 +17,6 @@ export default defineConfig({
       srcDirectory: "app",
       spa: {
         enabled: true,
-        maskPath: "/mono",
         prerender: {
           outputPath: "/_shell",
           crawlLinks: false,
@@ -28,14 +27,9 @@ export default defineConfig({
         autoStaticPathsDiscovery: false,
         crawlLinks: false,
       },
-      pages: [
-        { path: "/" },
-        { path: "/compare/frameio" },
-        { path: "/compare/wipster" },
-        { path: "/for/video-editors" },
-        { path: "/for/agencies" },
-        { path: "/pricing" },
-      ],
+      // Self-hosted: no marketing pages to prerender. "/" is a client redirect
+      // to the dashboard and is served by the SPA shell.
+      pages: [],
     }),
     viteReact(),
   ],
