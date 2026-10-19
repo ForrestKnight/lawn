@@ -72,10 +72,16 @@ import { useRegisterPaletteCommands, type PaletteCommand } from "@/lib/commandPa
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { createRequestEpoch } from "@/lib/requestEpoch";
 import { DashboardSortControl } from "@/components/DashboardSortControl";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { ExpandableTitle } from "@/components/ExpandableTitle";
-import { sortDashboardItems, type DashboardSort } from "@/lib/dashboardSort";
+import { sortDashboardItems } from "@/lib/dashboardSort";
+import { useDashboardSort } from "@/lib/useDashboardSort";
 
-type ViewMode = "grid" | "list";
+const viewModeOptions = [
+  { value: "grid", label: "Grid view", Icon: Grid3X3 },
+  { value: "list", label: "List view", Icon: LayoutList },
+] as const;
+type ViewMode = (typeof viewModeOptions)[number]["value"];
 const PROJECT_PRESENCE_VIDEO_LIMIT = 40;
 const PROJECT_PRESENCE_ROOT_MARGIN_PX = 480;
 const PROJECT_THUMBNAIL_WIDTH_PX = 640;
@@ -461,7 +467,7 @@ export default function ProjectPage({
   const navigate = useNavigate({});
   const pathname = useLocation().pathname;
   const convex = useConvex();
-  const [sort, setSort] = useState<DashboardSort>("last-uploaded");
+  const [sort, setSort] = useDashboardSort();
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   const {
@@ -833,44 +839,24 @@ export default function ProjectPage({
           )}
         >
           <DashboardSortControl value={sort} onChange={setSort} />
+          <SegmentedControl
+            label="Layout"
+            options={viewModeOptions}
+            value={viewMode}
+            onChange={setViewMode}
+          />
           {canUpload && (
-            <Button variant="outline" onClick={() => setCreateFolderOpen(true)}>
-              <FolderPlus className="h-4 w-4 sm:mr-1.5" />
-              <span className="hidden sm:inline">New folder</span>
-            </Button>
+            <button
+              type="button"
+              aria-label="New folder"
+              title="New folder"
+              onClick={() => setCreateFolderOpen(true)}
+              className="flex h-10 w-10 items-center justify-center border-2 border-(--border-subtle) text-[#888] transition-colors hover:border-(--border)! hover:text-[#1a1a1a]"
+            >
+              <FolderPlus className="h-4 w-4" aria-hidden="true" />
+            </button>
           )}
-          {/* View toggle */}
-          <div className="flex items-center border-2 border-[#1a1a1a] p-0.5">
-            <button
-              type="button"
-              aria-label="Show grid view"
-              aria-pressed={viewMode === "grid"}
-              onClick={() => setViewMode("grid")}
-              className={cn(
-                "p-1.5 transition-colors",
-                viewMode === "grid"
-                  ? "bg-[#1a1a1a] text-[#f0f0e8]"
-                  : "text-[#888] hover:text-[#1a1a1a]",
-              )}
-            >
-              <Grid3X3 className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              aria-label="Show list view"
-              aria-pressed={viewMode === "list"}
-              onClick={() => setViewMode("list")}
-              className={cn(
-                "p-1.5 transition-colors",
-                viewMode === "list"
-                  ? "bg-[#1a1a1a] text-[#f0f0e8]"
-                  : "text-[#888] hover:text-[#1a1a1a]",
-              )}
-            >
-              <LayoutList className="h-4 w-4" />
-            </button>
-          </div>
-          {canUpload && <UploadButton onFilesSelected={handleFilesSelected} />}
+          {canUpload && <UploadButton variant="flat" onFilesSelected={handleFilesSelected} />}
         </div>
       </DashboardHeader>
 

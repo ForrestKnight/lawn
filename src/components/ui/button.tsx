@@ -18,6 +18,8 @@ const buttonVariants = cva(
           "border-2 border-[#1a1a1a] bg-transparent text-[#1a1a1a] shadow-[4px_4px_0px_0px_var(--shadow-color)] hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-[#1a1a1a] hover:text-[#f0f0e8] hover:shadow-[2px_2px_0px_0px_var(--shadow-color)]",
         secondary:
           "border-2 border-[#1a1a1a] bg-[#e8e8e0] text-[#1a1a1a] shadow-[4px_4px_0px_0px_var(--shadow-color)] hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-[#d8d8d0] hover:shadow-[2px_2px_0px_0px_var(--shadow-color)]",
+        // Solid but shadowless, so it sits flush with the header's other 40px controls.
+        flat: "border-2 border-[#1a1a1a] bg-(--foreground) text-(--foreground-inverse) hover:border-(--accent)! hover:bg-(--accent) active:translate-x-0 active:translate-y-0",
         ghost:
           "border-2 border-transparent text-[#1a1a1a] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:border-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-[#f0f0e8] hover:shadow-[4px_4px_0px_0px_var(--shadow-color)]",
         link: "text-[#1a1a1a] underline underline-offset-4 hover:text-[#2d5a2d]",

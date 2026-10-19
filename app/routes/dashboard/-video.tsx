@@ -1083,7 +1083,7 @@ export default function VideoPage() {
                 </Button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2">
                 <ExpandableTitle title={video.title} className="max-w-[150px] sm:max-w-[300px]" />
                 {canEdit && (
                   <Button
@@ -1137,10 +1137,11 @@ export default function VideoPage() {
             <UploadButton
               multiple={false}
               variant="outline"
+              className="px-3 2xl:px-5"
               onFilesSelected={handleNewVersionSelected}
             >
               <Upload className="h-4 w-4" />
-              New version
+              <span className="sr-only 2xl:not-sr-only">New version</span>
             </UploadButton>
           )}
           <VideoWorkflowStatusControl

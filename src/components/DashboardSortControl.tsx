@@ -1,19 +1,14 @@
 import { ArrowDownAZ, Clock3 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import type { DashboardSort } from "@/lib/dashboardSort";
 
-const labels: Record<DashboardSort, string> = {
-  "last-uploaded": "Last uploaded",
-  alphabetical: "Alphabetical",
-};
+const options = [
+  { value: "last-uploaded", label: "Sort by last uploaded", Icon: Clock3 },
+  { value: "alphabetical", label: "Sort alphabetically", Icon: ArrowDownAZ },
+] as const;
 
+/** Binary toggle for the two dashboard sort orders. Only two options exist, so
+ * this avoids opening a popup just to pick the other one. */
 export function DashboardSortControl({
   value,
   onChange,
@@ -22,30 +17,11 @@ export function DashboardSortControl({
   onChange: (value: DashboardSort) => void;
 }) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" aria-label={`Sort dashboard: ${labels[value]}`}>
-          {value === "last-uploaded" ? (
-            <Clock3 className="h-4 w-4" aria-hidden="true" />
-          ) : (
-            <ArrowDownAZ className="h-4 w-4" aria-hidden="true" />
-          )}
-          <span className="hidden sm:inline">{labels[value]}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuRadioGroup
-          value={value}
-          onValueChange={(nextValue) => {
-            if (nextValue === "last-uploaded" || nextValue === "alphabetical") {
-              onChange(nextValue);
-            }
-          }}
-        >
-          <DropdownMenuRadioItem value="last-uploaded">Last uploaded</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="alphabetical">Alphabetical</DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <SegmentedControl
+      label="Sort projects and videos"
+      options={options}
+      value={value}
+      onChange={onChange}
+    />
   );
 }

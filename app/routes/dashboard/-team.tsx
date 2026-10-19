@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Folder, FolderPlus, Plus, UserPlus, Users, Settings } from "lucide-react";
+import { Folder, FolderPlus, Plus, UserPlus } from "lucide-react";
 import { MemberInvite } from "@/components/teams/MemberInvite";
 import { cn } from "@/lib/utils";
 import { projectPath, teamSettingsPath } from "@/lib/routes";
@@ -26,7 +26,8 @@ import { useMoveActions } from "@/lib/dnd/useMoveActions";
 import { useFolderDropTarget } from "@/lib/dnd/useFolderDropTarget";
 import type { DragPayload } from "@/lib/dnd/payload";
 import { DashboardSortControl } from "@/components/DashboardSortControl";
-import { sortDashboardItems, type DashboardSort } from "@/lib/dashboardSort";
+import { sortDashboardItems } from "@/lib/dashboardSort";
+import { useDashboardSort } from "@/lib/useDashboardSort";
 import { useRegisterPaletteCommands, type PaletteCommand } from "@/lib/commandPalette";
 
 export default function TeamPage() {
@@ -40,7 +41,7 @@ export default function TeamPage() {
   const deleteProject = useMutation(api.projects.remove);
   const { moveFromDrop } = useMoveActions();
   const [dndError, setDndError] = useState<string | null>(null);
-  const [sort, setSort] = useState<DashboardSort>("last-uploaded");
+  const [sort, setSort] = useDashboardSort();
   const sortedProjects = useMemo(() => sortDashboardItems(projects ?? [], sort), [projects, sort]);
 
   const handleDropMove = (payload: DragPayload, destProjectId?: Id<"projects">) => {
@@ -177,24 +178,8 @@ export default function TeamPage() {
       {/* Header */}
       <DashboardHeader paths={[{ label: team?.slug ?? "team" }]}>
         <DashboardSortControl value={sort} onChange={setSort} />
-        {team && (
-          <Button
-            variant="outline"
-            aria-label="Settings"
-            onClick={() => navigate({ to: teamSettingsPath(team.slug) })}
-          >
-            <Settings className="h-4 w-4 sm:mr-1.5" />
-            <span className="hidden sm:inline">Settings</span>
-          </Button>
-        )}
-        {canManageMembers && (
-          <Button variant="outline" onClick={() => setMemberDialogOpen(true)}>
-            <Users className="h-4 w-4 sm:mr-1.5" />
-            <span className="hidden sm:inline">Members</span>
-          </Button>
-        )}
         {canCreateProject && (
-          <Button onClick={() => setCreateDialogOpen(true)}>
+          <Button variant="flat" onClick={() => setCreateDialogOpen(true)}>
             <Plus className="h-4 w-4 sm:mr-1.5" />
             <span className="hidden sm:inline">New project</span>
           </Button>
