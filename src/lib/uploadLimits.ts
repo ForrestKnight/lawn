@@ -1,14 +1,14 @@
 export const GIBIBYTE = 1024 ** 3;
 export const MEBIBYTE = 1024 ** 2;
 
-export const MAX_VIDEO_FILE_SIZE_BYTES = 50 * GIBIBYTE;
+export const MAX_VIDEO_FILE_SIZE_BYTES = 75 * GIBIBYTE;
 export const SINGLE_PUT_MAX_BYTES = 256 * MEBIBYTE;
 export const MULTIPART_PART_SIZE_BYTES = 64 * MEBIBYTE;
 export const MULTIPART_UPLOAD_CONCURRENCY = 4;
 export const MAX_SIGN_PARTS_BATCH = 20;
 
 export function formatMaxUploadSize() {
-  return "50 GiB";
+  return "75 GiB";
 }
 
 export function isFileTooLarge(fileSize: number) {
