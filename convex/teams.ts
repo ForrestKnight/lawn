@@ -280,15 +280,22 @@ export const acceptInvite = mutation({
       .unique();
 
     if (!invite) {
-      throw new Error("Invalid invite");
+      throw new ConvexError("Invalid invite");
     }
 
     if (invite.expiresAt < Date.now()) {
-      throw new Error("Invite has expired");
+      throw new ConvexError("Invite has expired");
     }
 
-    if (invite.email !== normalizedEmail(identityEmail(user))) {
-      throw new Error("Invite is for a different email address");
+    const userEmail = normalizedEmail(identityEmail(user));
+    if (!userEmail) {
+      throw new ConvexError(
+        "Your sign-in token has no email claim. Check the Clerk JWT template named 'convex'.",
+      );
+    }
+
+    if (invite.email !== userEmail) {
+      throw new ConvexError("Invite is for a different email address");
     }
 
     const existingMembership = await ctx.db
@@ -299,7 +306,7 @@ export const acceptInvite = mutation({
       .unique();
 
     if (existingMembership) {
-      throw new Error("You are already a member of this team");
+      throw new ConvexError("You are already a member of this team");
     }
 
     await ctx.db.insert("teamMembers", {

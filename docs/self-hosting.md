@@ -20,7 +20,7 @@ dropped or reapplied after a rebase:
 | Convex prod    | `savory-bobcat-504` → https://savory-bobcat-504.convex.cloud                        |
 | Convex dev     | `unique-skunk-248` (`bun run dev:cloud`)                                            |
 | Vercel         | project `lawn`, production branch `master`, domain `lawn.fkcodes.com`               |
-| Clerk          | app `lawn` (`app_3Kbq1hRJ80UlbZMz7dkQmMqh2Q4`), dev instance, JWT template `convex` |
+| Clerk          | app `lawn` (`app_3Kbq1hRJ80UlbZMz7dkQmMqh2Q4`), dev instance, JWT template `convex` (must carry `email`, `name`, `picture` claims or invites fail and names show as "Unknown") |
 | R2             | bucket `lawn-videos` (private, CORS set), S3 endpoint on account `b564…a63`         |
 
 Vercel runs `bun run build:vercel`, which deploys Convex prod with
@@ -123,7 +123,7 @@ badge). A production instance needs DNS records on `fkcodes.com`:
 ```bash
 clerk deploy
 clerk env pull --instance prod --file /tmp/clerk-prod.env
-clerk api /jwt_templates --instance prod -d '{"name":"convex","claims":{"aud":"convex"}}'
+clerk api /jwt_templates --instance prod -d '{"name":"convex","claims":{"aud":"convex","email":"{{user.primary_email_address}}","name":"{{user.full_name}}","given_name":"{{user.first_name}}","family_name":"{{user.last_name}}","picture":"{{user.image_url}}"}}'
 # set CLERK_JWT_ISSUER_DOMAIN + CLERK_SECRET_KEY on Convex prod,
 # VITE_CLERK_PUBLISHABLE_KEY on Vercel, then redeploy.
 ```

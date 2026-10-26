@@ -17,9 +17,10 @@ export function identityName(identity: ClerkIdentity): string {
   const name = getOptionalString(identity, "name");
   if (name) return name;
 
-  const firstName = getOptionalString(identity, "firstName");
-  const lastName = getOptionalString(identity, "lastName");
+  const firstName = getOptionalString(identity, "givenName");
+  const lastName = getOptionalString(identity, "familyName");
   if (firstName && lastName) return `${firstName} ${lastName}`;
+  if (firstName) return firstName;
 
   const email = getOptionalString(identity, "email");
   if (email) return email;
