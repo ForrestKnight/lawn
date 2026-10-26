@@ -7,10 +7,10 @@ import {
   shouldRequestDashboardOriginalPlayback,
 } from "./dashboardPlaybackSource";
 
-test("waits for the 720p session when Mux playback is ready", () => {
+test("waits for the 1080p session when Mux playback is ready", () => {
   assert.equal(
     selectDashboardPlaybackUrl({
-      preferredSource: "mux720",
+      preferredSource: "mux1080",
       muxPlaybackReady: true,
       muxUrl: null,
       originalUrl: "https://storage.example/original.mov",
@@ -19,10 +19,10 @@ test("waits for the 720p session when Mux playback is ready", () => {
   );
 });
 
-test("uses 720p by default once its session is available", () => {
+test("uses 1080p by default once its session is available", () => {
   assert.equal(
     selectDashboardPlaybackUrl({
-      preferredSource: "mux720",
+      preferredSource: "mux1080",
       muxPlaybackReady: true,
       muxUrl: "https://stream.example/video.m3u8",
       originalUrl: "https://storage.example/original.mov",
@@ -34,7 +34,7 @@ test("uses 720p by default once its session is available", () => {
 test("falls back to the original while Mux is still processing", () => {
   assert.equal(
     selectDashboardPlaybackUrl({
-      preferredSource: "mux720",
+      preferredSource: "mux1080",
       muxPlaybackReady: false,
       muxUrl: null,
       originalUrl: "https://storage.example/original.mov",
@@ -117,7 +117,7 @@ test("keeps Mux attached when retrying an expired Original URL", () => {
 test("requests the original automatically only while Mux is processing", () => {
   assert.equal(
     shouldRequestDashboardOriginalPlayback({
-      preferredSource: "mux720",
+      preferredSource: "mux1080",
       videoStatus: "processing",
       hasOriginalFile: true,
     }),
@@ -125,7 +125,7 @@ test("requests the original automatically only while Mux is processing", () => {
   );
   assert.equal(
     shouldRequestDashboardOriginalPlayback({
-      preferredSource: "mux720",
+      preferredSource: "mux1080",
       videoStatus: "ready",
       hasOriginalFile: true,
     }),

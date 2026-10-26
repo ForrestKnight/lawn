@@ -99,8 +99,8 @@ export async function deletePlaybackId(assetId: string, playbackId: string) {
 
 export function buildMuxPlaybackUrl(playbackId: string, token?: string): string {
   const url = new URL(`https://stream.mux.com/${playbackId}.m3u8`);
-  // Cap delivery cost at 720p while preserving lower adaptive renditions.
-  url.searchParams.set("max_resolution", "720p");
+  // Cap delivery at 1080p while preserving lower adaptive renditions.
+  url.searchParams.set("max_resolution", "1080p");
   if (token) {
     url.searchParams.set("token", token);
   }

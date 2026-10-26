@@ -1,4 +1,4 @@
-export type DashboardPlaybackSource = "mux720" | "original";
+export type DashboardPlaybackSource = "mux1080" | "original";
 
 export function shouldRequestDashboardOriginalPlayback({
   preferredSource,

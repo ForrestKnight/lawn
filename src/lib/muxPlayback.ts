@@ -8,7 +8,7 @@ export type MuxPlaybackRecovery = {
 
 export function buildMuxPlaybackHlsUrl(playbackId: string) {
   const url = new URL(`https://stream.mux.com/${playbackId}.m3u8`);
-  url.searchParams.set("max_resolution", "720p");
+  url.searchParams.set("max_resolution", "1080p");
   return url.toString();
 }
 

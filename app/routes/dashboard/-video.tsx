@@ -398,7 +398,7 @@ export default function VideoPage() {
       : 0;
   const processingFailed = video?.status === "failed";
   const preferredSource =
-    sourcePreference?.videoId === resolvedVideoId ? sourcePreference.source : "mux720";
+    sourcePreference?.videoId === resolvedVideoId ? sourcePreference.source : "mux1080";
   const originalPlaybackFailed = !processingFailed && failedOriginalVideoId === resolvedVideoId;
   const originalPlaybackRequestAttempt =
     originalPlaybackRequest?.videoId === resolvedVideoId ? originalPlaybackRequest.attempt : 0;
@@ -431,7 +431,7 @@ export default function VideoPage() {
         originalUrl: usableOriginalPlaybackUrl,
       });
   const activeQualityId =
-    activePlaybackUrl && playbackUrl && activePlaybackUrl === playbackUrl ? "mux720" : "original";
+    activePlaybackUrl && playbackUrl && activePlaybackUrl === playbackUrl ? "mux1080" : "original";
   const isUsingOriginalFallback = Boolean(
     activePlaybackUrl && activePlaybackUrl === originalPlaybackUrl && !playbackUrl,
   );
@@ -573,7 +573,7 @@ export default function VideoPage() {
           videoId: resolvedVideoId,
           playbackId: request.playbackId,
           attempt: request.attempt,
-          message: "The 720p stream could not be loaded.",
+          message: "The 1080p stream could not be loaded.",
         });
         if (
           muxRecoveryVideoIdRef.current === resolvedVideoId &&
@@ -691,7 +691,7 @@ export default function VideoPage() {
       });
       setFailedOriginalVideoId(resolvedVideoId);
       setOriginalPlaybackIssue({ videoId: resolvedVideoId, type: issue.type });
-      setSourcePreference({ videoId: resolvedVideoId, source: "mux720" });
+      setSourcePreference({ videoId: resolvedVideoId, source: "mux1080" });
       muxRecoveryVideoIdRef.current = null;
 
       if (
@@ -723,7 +723,7 @@ export default function VideoPage() {
           videoId: resolvedVideoId,
           playbackId: muxPlaybackId,
           attempt: muxPlaybackSource.revision,
-          message: "The 720p stream could not be loaded.",
+          message: "The 1080p stream could not be loaded.",
         });
         return;
       }
@@ -749,7 +749,7 @@ export default function VideoPage() {
 
   const handleSelectQuality = useCallback(
     (id: string) => {
-      if (!resolvedVideoId || (id !== "mux720" && id !== "original")) return;
+      if (!resolvedVideoId || (id !== "mux1080" && id !== "original")) return;
       if (id === "original") {
         if (isLoadingOriginalPlayback) return;
         muxRecoveryVideoIdRef.current = null;
@@ -1297,7 +1297,7 @@ export default function VideoPage() {
             <div className="flex flex-shrink-0 items-center gap-2 bg-[#171c17] px-4 py-2 text-sm text-[#e7ede4]">
               <span className="inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-[#7cb87c]" />
               <span className="font-semibold">Original playback active.</span>
-              <span className="text-[#aeb9ac]">720p stream is still encoding.</span>
+              <span className="text-[#aeb9ac]">1080p stream is still encoding.</span>
             </div>
           ) : null}
 
@@ -1332,12 +1332,12 @@ export default function VideoPage() {
                 </span>
                 <span className="text-[#d8c6a8]">
                   {playbackUrl
-                    ? "Switched to 720p."
+                    ? "Switched to 1080p."
                     : isLoadingOriginalPlayback
                       ? "Refreshing Original…"
                       : activePlaybackLoadError && !isAutomaticPlaybackRetryPending
-                        ? "720p needs another try."
-                        : "Preparing 720p…"}
+                        ? "1080p needs another try."
+                        : "Preparing 1080p…"}
                 </span>
               </span>
               {!playbackUrl && !isLoadingOriginalPlayback ? (
@@ -1348,7 +1348,7 @@ export default function VideoPage() {
             </div>
           ) : null}
 
-          {activeQualityId === "mux720" && (isLoadingPlayback || activePlaybackLoadError) ? (
+          {activeQualityId === "mux1080" && (isLoadingPlayback || activePlaybackLoadError) ? (
             <div
               className="flex flex-shrink-0 items-center justify-between gap-3 bg-[#2a2114] px-4 py-2 text-sm text-[#fff1d5]"
               role="status"
@@ -1356,7 +1356,7 @@ export default function VideoPage() {
             >
               <span>
                 {isLoadingPlayback || isAutomaticPlaybackRetryPending
-                  ? "Repairing 720p playback…"
+                  ? "Repairing 1080p playback…"
                   : activePlaybackLoadError}
               </span>
               {activePlaybackLoadError && !isLoadingPlayback && !isAutomaticPlaybackRetryPending ? (
@@ -1372,7 +1372,7 @@ export default function VideoPage() {
               key={resolvedVideoId}
               ref={playerRef}
               src={activePlaybackUrl}
-              sourceRevision={activeQualityId === "mux720" ? (muxPlaybackSource?.revision ?? 0) : 0}
+              sourceRevision={activeQualityId === "mux1080" ? (muxPlaybackSource?.revision ?? 0) : 0}
               initialTime={activePlaybackResume?.currentTime}
               initialPlay={activePlaybackResume?.wasPlaying}
               poster={muxPlaybackSource?.posterUrl ?? video.thumbnailUrl}
@@ -1388,8 +1388,8 @@ export default function VideoPage() {
               onToggleTheater={() => setTheaterMode((current) => !current)}
               qualityOptionsConfig={[
                 {
-                  id: "mux720",
-                  label: playbackUrl ? "720p" : "720p (encoding...)",
+                  id: "mux1080",
+                  label: playbackUrl ? "1080p" : "1080p (encoding...)",
                   disabled: !playbackUrl,
                 },
                 {
@@ -1423,7 +1423,7 @@ export default function VideoPage() {
                     <>
                       <p className="text-sm font-medium text-white/85">{activePlaybackLoadError}</p>
                       <Button variant="primary" onClick={handleRetryPlaybackSession}>
-                        Retry 720p
+                        Retry 1080p
                       </Button>
                     </>
                   ) : (
@@ -1431,7 +1431,7 @@ export default function VideoPage() {
                       <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white/80" />
                       <p className="text-sm font-medium text-white/85">
                         {isLoadingPlayback || isAutomaticPlaybackRetryPending
-                          ? "Loading 720p stream..."
+                          ? "Loading 1080p stream..."
                           : "Preparing stream..."}
                       </p>
                     </>
