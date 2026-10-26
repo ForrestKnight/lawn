@@ -16,16 +16,16 @@ import {
   isFileTooLarge,
 } from "@/lib/uploadLimits";
 
-test("all teams can upload videos up to 50 GiB", () => {
+test("all teams can upload videos up to 75 GiB", () => {
   assert.equal(isFileTooLarge(MAX_VIDEO_FILE_SIZE_BYTES), false);
   assert.doesNotThrow(() => assertVideoFileSizeAllowed(MAX_VIDEO_FILE_SIZE_BYTES));
 });
 
-test("videos larger than 50 GiB are rejected", () => {
+test("videos larger than 75 GiB are rejected", () => {
   assert.equal(isFileTooLarge(MAX_VIDEO_FILE_SIZE_BYTES + 1), true);
   assert.throws(
     () => assertVideoFileSizeAllowed(MAX_VIDEO_FILE_SIZE_BYTES + 1),
-    /Maximum size is 50 GiB/,
+    /Maximum size is 75 GiB/,
   );
 });
 
