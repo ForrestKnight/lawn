@@ -814,6 +814,10 @@ export const markUploadComplete = action({
         });
       }
     } catch (error) {
+      // Log the underlying S3/Mux failure; the client only receives the
+      // sanitized message below, so this is the only place the real cause lands.
+      console.error("markUploadComplete failed", args.videoId, error);
+
       const shouldDeleteObject = shouldDeleteUploadedObjectOnFailure(error);
       if (shouldDeleteObject) {
         try {
@@ -838,7 +842,11 @@ export const markUploadComplete = action({
         videoId: args.videoId,
         uploadError,
       });
-      throw new Error("Mux ingest failed after upload. Retry processing without re-uploading.");
+      // ConvexError so production keeps the message instead of collapsing it to
+      // "Server Error", which also lets the client offer "retry processing".
+      throw new ConvexError(
+        "Mux ingest failed after upload. Retry processing without re-uploading.",
+      );
     }
 
     return { success: true };
