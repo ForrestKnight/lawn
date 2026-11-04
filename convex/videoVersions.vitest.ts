@@ -1073,15 +1073,15 @@ test("public version paths enforce authentication and member authorization", asy
     }),
   ).rejects.toThrow("Requires member role or higher");
   await expect(
-    t.withIdentity({ subject: "member" }).mutation(api.videos.remove, {
+    t.withIdentity({ subject: "viewer" }).mutation(api.videos.remove, {
       videoId: seeded.videoId,
     }),
-  ).rejects.toThrow("Requires admin role or higher");
+  ).rejects.toThrow("Requires member role or higher");
   await expect(
-    t.withIdentity({ subject: "member" }).mutation(api.videos.removeStack, {
+    t.withIdentity({ subject: "viewer" }).mutation(api.videos.removeStack, {
       videoId: seeded.videoId,
     }),
-  ).rejects.toThrow("Requires admin role or higher");
+  ).rejects.toThrow("Requires member role or higher");
 
   const versions = await t
     .withIdentity({ subject: "member" })

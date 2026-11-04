@@ -973,7 +973,7 @@ async function moveVideoStack(ctx: MutationCtx, videoId: Id<"videos">, projectId
 }
 
 async function loadStackForDelete(ctx: MutationCtx, videoId: Id<"videos">) {
-  const { video } = await requireVideoAccess(ctx, videoId, "admin");
+  const { video } = await requireVideoAccess(ctx, videoId, "member");
   const { versions } = await getStackVersions(ctx, video);
   return versions.map((version) => version._id);
 }
@@ -1085,7 +1085,7 @@ export const remove = mutation({
     replacementVideoId: v.union(v.id("videos"), v.null()),
   }),
   handler: async (ctx, args) => {
-    const { video } = await requireVideoAccess(ctx, args.videoId, "admin");
+    const { video } = await requireVideoAccess(ctx, args.videoId, "member");
     const replacementVideoId = await deleteVersionAndRenumberStack(ctx, video);
     const result = await deleteVideoDependentsBatch(
       ctx,

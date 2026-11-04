@@ -1038,7 +1038,7 @@ export default function VideoPage() {
   }
 
   const canEdit = video.role !== "viewer";
-  const canDelete = video.role === "owner" || video.role === "admin";
+  const canDelete = video.role !== "viewer";
   const canComment = true;
   const showVersionSelector = (versions?.length ?? 0) > 1;
 
@@ -1372,7 +1372,9 @@ export default function VideoPage() {
               key={resolvedVideoId}
               ref={playerRef}
               src={activePlaybackUrl}
-              sourceRevision={activeQualityId === "mux1080" ? (muxPlaybackSource?.revision ?? 0) : 0}
+              sourceRevision={
+                activeQualityId === "mux1080" ? (muxPlaybackSource?.revision ?? 0) : 0
+              }
               initialTime={activePlaybackResume?.currentTime}
               initialPlay={activePlaybackResume?.wasPlaying}
               poster={muxPlaybackSource?.posterUrl ?? video.thumbnailUrl}

@@ -780,7 +780,7 @@ export default function ProjectPage({
   }
 
   const canUpload = project?.role !== "viewer";
-  const canDeleteVideo = project?.role === "owner" || project?.role === "admin";
+  const canDeleteVideo = Boolean(project) && project?.role !== "viewer";
   // Every bulk action needs at least member access; viewers get no selection UI.
   const canSelect = canUpload;
   const selectionActive = canSelect && selection.selectedIds.size > 0;

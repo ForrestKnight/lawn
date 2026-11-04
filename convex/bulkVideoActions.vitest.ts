@@ -113,11 +113,11 @@ test("moveMany rejects a cross-team destination and rolls back", async () => {
   ]);
 });
 
-test("removeStacks requires admin", async () => {
-  const { t, authed, a1, b1, allIds } = await seed("member");
+test("removeStacks requires member", async () => {
+  const { t, authed, a1, b1, allIds } = await seed("viewer");
 
   await expect(authed.mutation(api.videos.removeStacks, { videoIds: [a1, b1] })).rejects.toThrow(
-    "Requires admin role or higher",
+    "Requires member role or higher",
   );
 
   const remaining = await t.run((ctx) => Promise.all(allIds.map((id) => ctx.db.get(id))));

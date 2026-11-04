@@ -484,7 +484,7 @@ async function runSubtreeDeleteBatch(
 export const remove = mutation({
   args: { projectId: v.id("projects") },
   handler: async (ctx, args) => {
-    const { project } = await requireProjectAccess(ctx, args.projectId, "admin");
+    const { project } = await requireProjectAccess(ctx, args.projectId, "member");
 
     const result = await runSubtreeDeleteBatch(ctx, project.teamId, args.projectId);
     if (!result.done) {
