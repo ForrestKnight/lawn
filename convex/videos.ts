@@ -316,6 +316,7 @@ export async function deleteVideoAndDependentsBatch(
   if (remaining === 0) return { deleted, done: false };
 
   await rewireStackBeforeDelete(ctx, video);
+  await scheduleRemoteAssetCleanup(ctx, video);
   await ctx.db.delete(videoId);
   return { deleted: deleted + 1, done: true };
 }
@@ -367,6 +368,20 @@ async function deleteVideoDependentsBatch(
   return { deleted, done: false };
 }
 
+/**
+ * Queue deletion of the bucket object and Mux asset behind a video document.
+ * Must run before the document itself is deleted, while its keys are known.
+ */
+async function scheduleRemoteAssetCleanup(ctx: MutationCtx, video: Doc<"videos">) {
+  if (!video.s3Key && !video.muxAssetId) return;
+  await ctx.scheduler.runAfter(0, internal.videoActions.cleanupRemoteAssets, {
+    videoId: video._id,
+    s3Key: video.s3Key,
+    s3MultipartUploadId: video.s3MultipartUploadId,
+    muxAssetId: video.muxAssetId,
+  });
+}
+
 async function deleteVersionAndRenumberStack(ctx: MutationCtx, video: Doc<"videos">) {
   const { oldestToNewest } = await getOrderedStackVersions(ctx, video);
   const targetIndex = oldestToNewest.findIndex((stackVersion) => stackVersion._id === video._id);
@@ -390,6 +405,7 @@ async function deleteVersionAndRenumberStack(ctx: MutationCtx, video: Doc<"video
     );
   }
 
+  await scheduleRemoteAssetCleanup(ctx, video);
   await ctx.db.delete(video._id);
   return replacementVideoId;
 }
@@ -980,6 +996,10 @@ async function loadStackForDelete(ctx: MutationCtx, videoId: Id<"videos">) {
 
 async function deleteStackVersions(ctx: MutationCtx, versionIds: Id<"videos">[]) {
   for (const versionId of versionIds) {
+    const version = await ctx.db.get(versionId);
+    if (version) {
+      await scheduleRemoteAssetCleanup(ctx, version);
+    }
     await ctx.db.delete(versionId);
     await ctx.scheduler.runAfter(0, internal.videos.continueVideoDelete, { videoId: versionId });
   }

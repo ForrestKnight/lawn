@@ -167,3 +167,24 @@ test("bulk actions reject selections over the cap", async () => {
     authed.mutation(api.videos.updateWorkflowStatusMany, { videoIds, workflowStatus: "done" }),
   ).rejects.toThrow(`at most ${MAX_BULK_VIDEO_ACTION} videos`);
 });
+
+test("remove schedules bucket and Mux cleanup for the deleted video", async () => {
+  const { t, authed, a1 } = await seed();
+  await t.run((ctx) =>
+    ctx.db.patch(a1, { s3Key: "videos/a1/original.mp4", muxAssetId: "mux-asset-a1" }),
+  );
+
+  await authed.mutation(api.videos.remove, { videoId: a1 });
+
+  const scheduled = await t.run((ctx) => ctx.db.system.query("_scheduled_functions").collect());
+  const cleanup = scheduled.filter((job) => job.name.includes("cleanupRemoteAssets"));
+  expect(cleanup, JSON.stringify(scheduled.map((job) => job.name))).toHaveLength(1);
+  expect(cleanup[0].args).toEqual([
+    {
+      videoId: a1,
+      s3Key: "videos/a1/original.mp4",
+      s3MultipartUploadId: undefined,
+      muxAssetId: "mux-asset-a1",
+    },
+  ]);
+});

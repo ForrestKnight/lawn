@@ -16,6 +16,7 @@ import {
   buildMuxThumbnailUrl,
   createMuxAssetFromInputUrl,
   createPublicPlaybackId,
+  deleteMuxAsset,
   getMuxAsset,
 } from "./mux";
 import { BUCKET_NAME, getS3Client } from "./s3";
@@ -850,6 +851,58 @@ export const markUploadComplete = action({
     }
 
     return { success: true };
+  },
+});
+
+function isNotFoundError(error: unknown): boolean {
+  const status = (error as { status?: unknown; $metadata?: { httpStatusCode?: unknown } })?.status;
+  const httpStatus = (error as { $metadata?: { httpStatusCode?: unknown } })?.$metadata
+    ?.httpStatusCode;
+  return status === 404 || httpStatus === 404;
+}
+
+/**
+ * Best-effort removal of the bucket object and Mux asset behind a deleted
+ * video. Scheduled by the mutations that delete video documents so that
+ * storage and Mux never outlive the record that referenced them.
+ */
+export const cleanupRemoteAssets = internalAction({
+  args: {
+    videoId: v.string(),
+    s3Key: v.optional(v.string()),
+    s3MultipartUploadId: v.optional(v.string()),
+    muxAssetId: v.optional(v.string()),
+  },
+  returns: v.null(),
+  handler: async (_ctx, args) => {
+    if (args.s3Key) {
+      try {
+        if (args.s3MultipartUploadId) {
+          await abortMultipartUploadSession({
+            key: args.s3Key,
+            uploadId: args.s3MultipartUploadId,
+          });
+        } else {
+          await deleteUploadedObject(args.s3Key);
+        }
+      } catch (error) {
+        if (!isNotFoundError(error)) {
+          console.error("Failed to delete bucket object for removed video", args.videoId, error);
+        }
+      }
+    }
+
+    if (args.muxAssetId) {
+      try {
+        await deleteMuxAsset(args.muxAssetId);
+      } catch (error) {
+        if (!isNotFoundError(error)) {
+          console.error("Failed to delete Mux asset for removed video", args.videoId, error);
+        }
+      }
+    }
+
+    return null;
   },
 });
 
