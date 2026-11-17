@@ -20,6 +20,7 @@ import { projectPath, teamSettingsPath } from "@/lib/routes";
 import { Id } from "@convex/_generated/dataModel";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { MoveProjectDialog } from "@/components/projects/MoveProjectDialog";
+import { RenameProjectDialog } from "@/components/projects/RenameProjectDialog";
 import { useTeamData } from "./-team.data";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { useMoveActions } from "@/lib/dnd/useMoveActions";
@@ -76,6 +77,10 @@ export default function TeamPage() {
   const [newProjectName, setNewProjectName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [moveTarget, setMoveTarget] = useState<{
+    _id: Id<"projects">;
+    name: string;
+  } | null>(null);
+  const [renameTarget, setRenameTarget] = useState<{
     _id: Id<"projects">;
     name: string;
   } | null>(null);
@@ -267,6 +272,7 @@ export default function TeamPage() {
                 onOpen={() => navigate({ to: projectPath(team.slug, project._id) })}
                 onDelete={canCreateProject ? handleDeleteProject : undefined}
                 onMove={canCreateProject ? (p) => setMoveTarget(p) : undefined}
+                onRename={canCreateProject ? (p) => setRenameTarget(p) : undefined}
                 dnd={
                   teamId
                     ? {
@@ -335,6 +341,14 @@ export default function TeamPage() {
           onOpenChange={setMemberDialogOpen}
         />
       )}
+
+      <RenameProjectDialog
+        project={renameTarget}
+        open={renameTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRenameTarget(null);
+        }}
+      />
 
       {team && (
         <MoveProjectDialog

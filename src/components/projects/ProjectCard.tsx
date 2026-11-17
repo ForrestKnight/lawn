@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Trash2, ArrowRight, FolderInput } from "lucide-react";
+import { MoreVertical, Trash2, ArrowRight, FolderInput, Pencil } from "lucide-react";
 import { Id } from "@convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { useRoutePrewarmIntent } from "@/lib/useRoutePrewarmIntent";
@@ -50,6 +50,7 @@ type ProjectCardProps = {
   onOpen: () => void;
   onDelete?: (projectId: Id<"projects">) => void;
   onMove?: (project: { _id: Id<"projects">; name: string }) => void;
+  onRename?: (project: { _id: Id<"projects">; name: string }) => void;
   /** Drag-and-drop wiring. Omit to render a plain (non-draggable) card. */
   dnd?: {
     teamId: Id<"teams">;
@@ -70,6 +71,7 @@ export function ProjectCard({
   onOpen,
   onDelete,
   onMove,
+  onRename,
   dnd,
 }: ProjectCardProps) {
   const convex = useConvex();
@@ -80,7 +82,7 @@ export function ProjectCard({
     }),
   );
 
-  const showMenu = Boolean(onDelete || onMove);
+  const showMenu = Boolean(onDelete || onMove || onRename);
 
   const dndDisabled = !dnd || dnd.disabled;
   const { ref: dragRef, isDragging } = useDraggableCard<HTMLDivElement>({
@@ -157,6 +159,17 @@ export function ProjectCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              {onRename && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRename({ _id: project._id, name: project.name });
+                  }}
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Rename
+                </DropdownMenuItem>
+              )}
               {onMove && (
                 <DropdownMenuItem
                   onClick={(e) => {

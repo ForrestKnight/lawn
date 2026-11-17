@@ -51,6 +51,7 @@ import { projectPath, teamHomePath, videoPath, watchPath } from "@/lib/routes";
 import { copyTextToClipboard } from "@/lib/clipboard";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { MoveProjectDialog } from "@/components/projects/MoveProjectDialog";
+import { RenameProjectDialog } from "@/components/projects/RenameProjectDialog";
 import { MoveVideoDialog, type MoveVideoTarget } from "@/components/videos/MoveVideoDialog";
 import { VideoSelectionBar } from "@/components/videos/VideoSelectionBar";
 import { useVideoSelection } from "@/lib/videoSelection";
@@ -528,6 +529,10 @@ export default function ProjectPage({
     _id: Id<"projects">;
     name: string;
   } | null>(null);
+  const [renameTarget, setRenameTarget] = useState<{
+    _id: Id<"projects">;
+    name: string;
+  } | null>(null);
   const [moveVideoTargets, setMoveVideoTargets] = useState<MoveVideoTarget[]>([]);
   const selection = useVideoSelection(presenceCandidateVideoIds, resolvedProjectId);
   const { deleteVideos, setWorkflowStatus } = useBulkVideoActions();
@@ -892,6 +897,7 @@ export default function ProjectPage({
                   onOpen={() => navigate({ to: projectPath(resolvedTeamSlug, child._id) })}
                   onDelete={canUpload ? handleDeleteFolder : undefined}
                   onMove={canUpload ? (p) => setMoveTarget(p) : undefined}
+                  onRename={canUpload ? (p) => setRenameTarget(p) : undefined}
                   dnd={
                     teamId
                       ? {
@@ -1412,6 +1418,14 @@ export default function ProjectPage({
           </form>
         </DialogContent>
       </Dialog>
+
+      <RenameProjectDialog
+        project={renameTarget}
+        open={renameTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRenameTarget(null);
+        }}
+      />
 
       {teamId && (
         <MoveProjectDialog

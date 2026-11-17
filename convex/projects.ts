@@ -351,7 +351,11 @@ export const update = mutation({
     await requireProjectAccess(ctx, args.projectId, "member");
 
     const updates: Partial<{ name: string; description: string }> = {};
-    if (args.name !== undefined) updates.name = args.name;
+    if (args.name !== undefined) {
+      const name = args.name.trim();
+      if (!name) throw new Error("Folder name cannot be empty");
+      updates.name = name;
+    }
     if (args.description !== undefined) updates.description = args.description;
 
     await ctx.db.patch(args.projectId, updates);

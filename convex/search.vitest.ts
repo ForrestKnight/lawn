@@ -120,7 +120,10 @@ async function renamesMovesAndDeletes() {
   await owner.mutation(api.videos.move, { videoId: finalCutId, projectId: campaignId });
   expect(await search("director")).toMatchObject([{ projectId: campaignId, path: "Campaign" }]);
 
-  await owner.mutation(api.projects.update, { projectId: editsId, name: "Selects" });
+  await owner.mutation(api.projects.update, { projectId: editsId, name: "  Selects  " });
+  await expect(
+    owner.mutation(api.projects.update, { projectId: editsId, name: "   " }),
+  ).rejects.toThrow("Folder name cannot be empty");
   expect(await search("edits")).toEqual([]);
   expect(await search("selects")).toMatchObject([{ kind: "folder", title: "Selects" }]);
 
